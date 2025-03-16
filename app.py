@@ -5,7 +5,7 @@ import requests
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-@st.cache
+@st.cache_data
 def load_data():
     data = pd.read_csv('temperature_data.csv')
     data['timestamp'] = pd.to_datetime(data['timestamp'])
@@ -30,16 +30,11 @@ def get_current_temperature(api_key, city):
 
 def main():
     st.title("Анализ температурных данных и мониторинг текущей температуры")
-
     data = load_data()
-
     cities = data['city'].unique()
     selected_city = st.selectbox("Выберите город", cities)
-
     city_data = data[data['city'] == selected_city]
-
     city_data = calculate_moving_average(city_data)
-
     st.subheader("Временной ряд температур с аномалиями")
     fig, ax = plt.subplots()
     ax.plot(city_data['timestamp'], city_data['temperature'], label='Температура')
@@ -47,7 +42,6 @@ def main():
     ax.scatter(city_data[city_data['anomaly']]['timestamp'], city_data[city_data['anomaly']]['temperature'], color='red', label='Аномалии')
     ax.legend()
     st.pyplot(fig)
-
     st.subheader("Сезонные профили температуры")
     seasonal_avg = city_data.groupby('season')['temperature'].mean()
     seasonal_std = city_data.groupby('season')['temperature'].std()
@@ -55,7 +49,6 @@ def main():
     st.write(seasonal_avg)
     st.write("Стандартное отклонение по сезонам:")
     st.write(seasonal_std)
-
     api_key = st.text_input("Введите ваш API ключ OpenWeatherMap")
 
     if api_key:
